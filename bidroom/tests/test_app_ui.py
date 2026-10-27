@@ -4,9 +4,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from docx import Document
 from streamlit.testing.v1 import AppTest
 
 from scripts.build_db import construir
+from src.governance import editais
 from src.ingestion.db import conectar
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -81,8 +83,46 @@ def test_t1_t2_t3_t4_renderizam(tmp_path, monkeypatch):
         ("Bid Room", "Bid Room — ranking"),
         ("Perfil", "Candidato 001"),
         ("Alocação", "Alocação do time"),
+        ("Edital", "Edital e demanda"),
+        ("Governança", "Governança e LGPD"),
     ]:
         at.session_state["pagina"] = pagina
         at.run()
         assert not at.exception, at.exception
         assert at.title[0].value == titulo
+
+
+def test_edital_renderiza_versao_extraida(tmp_path, monkeypatch):
+    db = _banco(tmp_path)
+    monkeypatch.setenv("BIDROOM_DB", str(db))
+    monkeypatch.setenv("BIDROOM_EDITAIS", str(tmp_path / "editais"))
+    con = conectar(db)
+    try:
+        edital_id = editais.criar_edital(con, "Edital UI", cliente_ficticio="Cliente")
+        caminho = tmp_path / "edital.docx"
+        doc = Document()
+        for linha in (
+            "Papel: PM/Scrum Sênior — 1 vaga",
+            "Competências obrigatórias: Scrum, Kanban",
+            "Experiência mínima: 5 anos",
+            "Critério de pontuação: qualidade (a definir).",
+        ):
+            doc.add_paragraph(linha)
+        doc.save(caminho)
+        editais.receber_versao(
+            con,
+            edital_id,
+            nome_arquivo=caminho.name,
+            conteudo=caminho.read_bytes(),
+            ator="teste",
+        )
+    finally:
+        con.close()
+
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=40)
+    at.run()
+    at.session_state["pagina"] = "Edital"
+    at.run()
+    assert not at.exception, at.exception
+    assert at.title[0].value == "Edital e demanda"
+    assert any("Revisão humana" in item.value for item in at.subheader)

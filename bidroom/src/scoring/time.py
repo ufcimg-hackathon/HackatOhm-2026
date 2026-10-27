@@ -219,6 +219,38 @@ def carregar_alocacoes(con, disputa_id: int) -> list[dict]:
     ]
 
 
+def _eliminados_na_selecao(con, disputa_id: int, selecoes: list[dict]) -> list[int]:
+    """Candidatos cujo score atual no papel está eliminado pelos gates."""
+    eliminados: list[int] = []
+    for selecao in selecoes:
+        candidato_id = int(selecao["candidato_id"])
+        papel_id = int(selecao["papel_id"])
+        row = con.execute(
+            """
+            SELECT p.detalhe_json
+            FROM pontuacoes p
+            WHERE p.disputa_id = ?
+              AND p.candidato_id = ?
+              AND p.papel_id = ?
+              AND p.curriculo_versao_id = (
+                  SELECT MAX(id) FROM curriculos WHERE candidato_id = ?
+              )
+            ORDER BY p.id DESC
+            LIMIT 1
+            """,
+            (disputa_id, candidato_id, papel_id, candidato_id),
+        ).fetchone()
+        if row is None or not row["detalhe_json"]:
+            continue
+        try:
+            status = json.loads(row["detalhe_json"]).get("status_gates")
+        except (TypeError, ValueError):
+            status = None
+        if status == "eliminado":
+            eliminados.append(candidato_id)
+    return eliminados
+
+
 def salvar_alocacao(
     con,
     disputa_id: int,
@@ -228,13 +260,29 @@ def salvar_alocacao(
     """Substitui a alocação ativa da disputa.
 
     `selecoes`: lista de `{papel_id, candidato_id}` na ordem das vagas.
-    Um candidato só pode ocupar uma vaga.
+    Um candidato só pode ocupar uma vaga. Candidato eliminado pelos gates
+    não pode ser alocado silenciosamente.
     """
     candidatos = [int(s["candidato_id"]) for s in selecoes if s.get("candidato_id")]
     if len(candidatos) != len(set(candidatos)):
         raise ValueError("um candidato não pode ocupar duas vagas")
     if len(candidatos) != len(selecoes):
         raise ValueError("todas as vagas precisam de um candidato")
+
+    disputa = con.execute(
+        "SELECT edital_versao_id FROM disputas WHERE id = ?", (disputa_id,)
+    ).fetchone()
+    if disputa is not None and disputa["edital_versao_id"] is not None:
+        from src.scoring.composicao import validar_selecao_demanda
+
+        validar_selecao_demanda(con, disputa_id, selecoes)
+    else:
+        eliminados = _eliminados_na_selecao(con, disputa_id, selecoes)
+        if eliminados:
+            raise ValueError(
+                "candidato(s) eliminado(s) pelos gates não pode(m) ser alocado(s): "
+                + ", ".join(str(cid) for cid in sorted(set(eliminados)))
+            )
 
     anteriores = {
         int(row["candidato_id"])

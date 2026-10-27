@@ -23,7 +23,14 @@ from src.governance.auditoria import registrar
 CHAVE_ENV = "BIDROOM_PII_KEY"
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
-TELEFONE_RE = re.compile(r"\(?\d{2}\)?\s?9?\d{4}[-\s]?\d{4}")
+# Telefone brasileiro: evita confundir intervalos de anos ("2015 - 2023")
+# com números. Aceita (11) 98765-4321, 11 98765-4321, 11987654321 e +55.
+TELEFONE_RE = re.compile(
+    r"(?<!\d)(?!\s*(?:19|20)\d{2}\s*[-–—]\s*(?:19|20)\d{2})"
+    r"(?:\+?55[\s.-]?)?"
+    r"(?:\(\d{2}\)[\s.-]?|\d{2}[\s.-])?"
+    r"9?\d{4}[\s.-]?\d{4}(?!\d)"
+)
 CEPE_RE = re.compile(r"\b\d{5}-?\d{3}\b")
 ENDERECO_RE = re.compile(
     r"(?:Rua|Avenida|Av\.?|Alameda|Travessa|Rodovia|Street|Road|Rd\.?|Avenue|"
@@ -86,8 +93,13 @@ def salvar(
     tipo: str,
     valor: str,
     ator: str = "sistema",
+    commit: bool = True,
 ) -> int:
-    """Cifra e grava um dado pessoal; auditado como `criar_pii`."""
+    """Cifra e grava um dado pessoal; auditado como `criar_pii`.
+
+    `commit=False` permite que a ingestão inteira seja uma única transação:
+    se a extração falhar depois, nem a PII nem a auditoria ficam órfãs.
+    """
     token = cofre.cifrar(valor)
     cur = con.execute(
         "INSERT INTO cofre_dados_pessoais (candidato_id, tipo, valor_criptografado)"
@@ -101,8 +113,10 @@ def salvar(
         entidade="cofre_dados_pessoais",
         entidade_id=cur.lastrowid,
         detalhes={"tipo": tipo, "candidato_id": candidato_id},
+        commit=False,
     )
-    con.commit()
+    if commit:
+        con.commit()
     return cur.lastrowid
 
 

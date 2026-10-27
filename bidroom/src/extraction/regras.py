@@ -87,6 +87,12 @@ TITULOS_SECAO = {
     "histórico profissional", "historico profissional",
 }
 
+TITULOS_FORMACAO = {
+    "formação", "formacao", "formação acadêmica", "formacao academica",
+    "education", "academic background", "academic history",
+    "qualificações", "qualificacoes", "qualifications",
+}
+
 PROJETO_CLIENTE_RE = re.compile(
     r"(?:client|cliente|project|projeto)\s*:\s*[A-Z0-9]", re.IGNORECASE
 )
@@ -141,6 +147,25 @@ def _buscar_termos(texto: str, posicao: int, aliases: list[str]) -> bool:
         if padrao.search(texto, posicao, posicao + 80):
             return True
     return False
+
+
+def _contem_termo(texto: str, termos: list[str]) -> bool:
+    """Casa termos inteiros; evita 'wind' dentro de 'Windows'."""
+    for termo in termos:
+        padrao = re.compile(
+            r"(?<![A-Za-z0-9])" + re.escape(termo) + r"(?![A-Za-z0-9])",
+            re.IGNORECASE,
+        )
+        if padrao.search(texto):
+            return True
+    return False
+
+
+def _linha_e_formacao(linha: str) -> bool:
+    baixa = linha.lower().strip(" :\t")
+    if baixa in TITULOS_FORMACAO:
+        return True
+    return any(kw in baixa for kw in FORMACAO_KW)
 
 
 @dataclass
@@ -251,8 +276,17 @@ def _extrair_experiencias(texto: str, n_paginas: int) -> list[FatoExtraido]:
         pos = achado.start()
         inicio, fim_linha = _limites_linha(texto, pos)
         linha = texto[inicio : min(fim_linha, inicio + 400)]
-        # linha de formação também tem período — não é experiência profissional
-        if any(kw in linha.lower() for kw in FORMACAO_KW):
+        # Linha de formação também tem período — não é experiência profissional.
+        # O período pode estar em uma linha separada logo abaixo de
+        # "Formação"/"Education" ou de "Bacharelado em ...".
+        anteriores_linha = [
+            item.strip()
+            for item in texto[:inicio].splitlines()
+            if item.strip()
+        ][-2:]
+        if _linha_e_formacao(linha) or any(
+            _linha_e_formacao(item) for item in anteriores_linha
+        ):
             continue
         prefixo = texto[inicio : achado.start()].strip(" \t-–—|,:(").strip()
         sufixo = texto[achado.end() : fim_linha].strip(" \t-–—|,:()").strip()
@@ -293,9 +327,7 @@ def _extrair_experiencias(texto: str, n_paginas: int) -> list[FatoExtraido]:
         ][-2:]
         contexto = "\n".join([*anteriores, bloco])
         tem_projeto_cliente = bool(PROJETO_CLIENTE_RE.search(contexto))
-        dominio = "energia" if any(
-            kw.lower() in bloco.lower() for kw in ENERGIA
-        ) else None
+        dominio = "energia" if _contem_termo(contexto, ENERGIA) else None
         tecnologias = [
             nome
             for nome, aliases in COMPETENCIAS.items()

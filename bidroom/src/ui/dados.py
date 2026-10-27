@@ -12,7 +12,10 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
+from src.governance.atualidade import resumo_candidato
+from src.governance.comprovacao import estado_comprovacao, resumo_comprovacao
 from src.scoring.contexto import ContextoCandidato, carregar_contexto
+from src.scoring.demanda import listar_resultados_demanda
 
 ROTULO_STATUS_CURACAO = {
     "nao_curado": "Não curado",
@@ -22,6 +25,7 @@ ROTULO_STATUS_CURACAO = {
 ROTULO_GATE = {
     "elegivel": "Elegível",
     "revisar": "Revisar",
+    "pendente": "Pendente",
     "eliminado": "Eliminado",
 }
 COLUNAS_RANKING = [
@@ -53,6 +57,36 @@ COLUNAS_RANKING = [
     "data_ingestao",
     "dias_ingestao",
 ]
+COLUNAS_RANKING_DEMANDA = [
+    "candidato_id",
+    "nome",
+    "status_curacao",
+    "papel_id",
+    "papel",
+    "papel_nome",
+    "score",
+    "nota_tecnica",
+    "pontuacao_maxima",
+    "score_interno_apoio",
+    "confianca",
+    "atualidade",
+    "status_gates",
+    "requisitos_ok",
+    "requisitos_pendentes",
+    "requisitos_nao_atendidos",
+    "requisitos_obrigatorios",
+    "obrigatorios_ok",
+    "obrigatorios_pendentes",
+    "obrigatorios_nao_atendidos",
+    "evidencia_max",
+    "ancoras",
+    "anos",
+    "coletivos",
+    "curriculo_versao_id",
+    "curriculo_versao",
+    "data_ingestao",
+    "dias_ingestao",
+]
 
 
 def _json(texto: str | None) -> dict:
@@ -79,10 +113,13 @@ def _dias_desde(texto: str | None) -> int:
 def carregar_disputa(con: sqlite3.Connection) -> dict | None:
     row = con.execute(
         "SELECT d.*, v.numero AS preset_numero, v.status AS preset_status,"
-        " p.nome AS preset_nome"
+        " p.nome AS preset_nome, ev.numero AS edital_numero,"
+        " ev.status AS edital_status, e.nome AS edital_nome"
         " FROM disputas d"
         " LEFT JOIN versoes_preset v ON v.id = d.preset_versao_id"
         " LEFT JOIN presets p ON p.id = v.preset_id"
+        " LEFT JOIN edital_versoes ev ON ev.id = d.edital_versao_id"
+        " LEFT JOIN editais e ON e.id = ev.edital_id"
         " ORDER BY d.id DESC LIMIT 1"
     ).fetchone()
     return dict(row) if row else None
@@ -219,6 +256,79 @@ def carregar_ranking(
             }
         )
     return pd.DataFrame(registros, columns=COLUNAS_RANKING)
+
+
+def carregar_ranking_demanda(
+    con: sqlite3.Connection,
+    disputa_id: int,
+    edital_versao_id: int,
+) -> pd.DataFrame:
+    """Ranking da demanda: nota do edital separada do apoio interno."""
+    rows = listar_resultados_demanda(con, disputa_id, edital_versao_id)
+    registros = []
+    for row in rows:
+        detalhe = row.get("detalhe") or {}
+        contagens = detalhe.get("contagens") or {}
+        ancoras = [
+            item.get("descricao") or item.get("motivo") or ""
+            for item in detalhe.get("ancoras", [])
+        ]
+        registros.append(
+            {
+                "candidato_id": int(row["candidato_id"]),
+                "nome": row["nome_pseudonimo"],
+                "status_curacao": row["status_curacao"],
+                "papel_id": int(row["papel_id"]),
+                "papel": row["papel"],
+                "papel_nome": row["papel_nome"],
+                "score": round(float(row["nota_tecnica"] or 0), 2),
+                "nota_tecnica": round(float(row["nota_tecnica"] or 0), 2),
+                "pontuacao_maxima": round(
+                    float(detalhe.get("pontuacao_maxima") or 0), 2
+                ),
+                "score_interno_apoio": round(
+                    float(row["score_interno_apoio"] or 0), 2
+                ),
+                "confianca": round(float(row["confianca"] or 0), 2),
+                "atualidade": round(float(row["atualidade"] or 0), 2),
+                "status_gates": row["status"],
+                "requisitos_ok": int(contagens.get("atendidos") or 0),
+                "requisitos_pendentes": int(contagens.get("pendentes") or 0),
+                "requisitos_nao_atendidos": int(
+                    contagens.get("nao_atendidos") or 0
+                ),
+                "requisitos_obrigatorios": int(contagens.get("obrigatorios") or 0),
+                "obrigatorios_ok": int(
+                    contagens.get("obrigatorios_atendidos") or 0
+                ),
+                "obrigatorios_pendentes": int(
+                    contagens.get("obrigatorios_pendentes") or 0
+                ),
+                "obrigatorios_nao_atendidos": int(
+                    contagens.get("obrigatorios_nao_atendidos") or 0
+                ),
+                "evidencia_max": int(detalhe.get("evidencia_max") or 0),
+                "ancoras": ", ".join(item for item in ancoras if item) or "—",
+                "anos": round(float(detalhe.get("anos_experiencia") or 0), 1),
+                "coletivos": len(detalhe.get("coletivos") or []),
+                "curriculo_versao_id": int(row["curriculo_versao_id"]),
+                "curriculo_versao": int(row["curriculo_versao"]),
+                "data_ingestao": row["data_ingestao"],
+                "dias_ingestao": _dias_desde(row["data_ingestao"]),
+            }
+        )
+    return pd.DataFrame(registros, columns=COLUNAS_RANKING_DEMANDA)
+
+
+def carregar_resultados_demanda(
+    con: sqlite3.Connection,
+    disputa_id: int,
+    candidato_id: int,
+    edital_versao_id: int | None = None,
+) -> list[dict]:
+    return listar_resultados_demanda(
+        con, disputa_id, edital_versao_id, candidato_id=candidato_id
+    )
 
 
 def carregar_dashboard(con: sqlite3.Connection) -> dict:
@@ -463,6 +573,24 @@ def carregar_perfil(con: sqlite3.Connection, candidato_id: int) -> dict | None:
         ).fetchall(),
     )
     contexto = carregar_contexto(con, int(curriculo["id"]))
+    atualidade = resumo_candidato(con, candidato_id)
+    atualidade_por_fato = {
+        (item["tipo_fato"], int(item["fato_id"])): item
+        for item in atualidade["itens"]
+    }
+    comprovacao_por_fato = {}
+    for tipo, itens in (
+        ("experiencia", experiencias),
+        ("certificacao", certificacoes),
+        ("formacao", formacoes),
+        ("competencia", competencias),
+        ("idioma", idiomas),
+    ):
+        for item in itens:
+            comprovacao_por_fato[(tipo, int(item["id"]))] = estado_comprovacao(
+                con, tipo, int(item["id"])
+            )
+    comprovacao = resumo_comprovacao(con, candidato_id)
     return {
         "candidato": dict(candidato),
         "curriculo": dict(curriculo),
@@ -475,6 +603,10 @@ def carregar_perfil(con: sqlite3.Connection, candidato_id: int) -> dict | None:
         "formacoes": formacoes,
         "idiomas": idiomas,
         "contexto": contexto,
+        "atualidade": atualidade,
+        "atualidade_por_fato": atualidade_por_fato,
+        "comprovacao": comprovacao,
+        "comprovacao_por_fato": comprovacao_por_fato,
     }
 
 

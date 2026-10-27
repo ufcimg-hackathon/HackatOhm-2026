@@ -20,6 +20,17 @@ def ranking(db_path: str, disputa_id: int, versao_preset_id: int) -> pd.DataFram
 
 
 @st.cache_data(ttl=180, show_spinner=False)
+def ranking_demanda(
+    db_path: str, disputa_id: int, edital_versao_id: int
+) -> pd.DataFrame:
+    con = conectar(db_path)
+    try:
+        return dados.carregar_ranking_demanda(con, disputa_id, edital_versao_id)
+    finally:
+        con.close()
+
+
+@st.cache_data(ttl=180, show_spinner=False)
 def candidatos(db_path: str) -> pd.DataFrame:
     con = conectar(db_path)
     try:

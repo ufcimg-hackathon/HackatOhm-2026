@@ -8,7 +8,15 @@ from __future__ import annotations
 import streamlit as st
 
 from src.ingestion.db import conectar
-from src.ui import t1_dashboard, t2_ranking, t3_perfil, t4_alocacao, t5_preset
+from src.ui import (
+    t1_dashboard,
+    t2_ranking,
+    t3_perfil,
+    t4_alocacao,
+    t5_preset,
+    t6_governanca,
+    t7_edital,
+)
 from src.ui import dados
 from src.ui.comum import caminho_db, formatar_data
 
@@ -29,7 +37,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-PAGINAS = ["Dashboard", "Bid Room", "Perfil", "Alocação", "Preset", "Governança"]
+PAGINAS = [
+    "Dashboard",
+    "Bid Room",
+    "Perfil",
+    "Alocação",
+    "Preset",
+    "Edital",
+    "Governança",
+]
 db = caminho_db()
 if not db.exists():
     st.error(
@@ -78,11 +94,9 @@ try:
         t4_alocacao.render(con)
     elif pagina == "Preset":
         t5_preset.render(con)
+    elif pagina == "Edital":
+        t7_edital.render(con)
     elif pagina == "Governança":
-        try:
-            from src.ui import t6_governanca
-            t6_governanca.render(con)
-        except Exception:
-            st.info("Página Governança — em construção.")
+        t6_governanca.render(con)
 finally:
     con.close()

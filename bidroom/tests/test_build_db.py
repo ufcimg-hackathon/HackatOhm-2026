@@ -2,14 +2,14 @@
 import json
 
 from scripts.build_db import construir
-from src.ingestion.db import conectar
+from src.ingestion.db import TABELAS_ESPERADAS, conectar
 
 
 def test_build_db_cria_schema_e_seed(tmp_path):
     destino = tmp_path / "demo.db"
     resumo = construir(destino)
     assert destino.exists()
-    assert resumo["tabelas"] == 18
+    assert resumo["tabelas"] == len(TABELAS_ESPERADAS)
     assert resumo["papeis"] == 4
     assert resumo["presets"] == 1
     assert resumo["versoes_preset"] == 1

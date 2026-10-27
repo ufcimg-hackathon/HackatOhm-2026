@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 
 from src.scoring.catalogo import CATALOGO
-from src.scoring.contexto import carregar_contexto
+from src.scoring.contexto import carregar_contextos
 from src.scoring.engine import pontuar
 
 STATUS_VALIDOS = ("elegivel", "revisar", "eliminado")
@@ -87,10 +87,15 @@ def preview_papel(
     # 'Depois': recalcula todos os candidatos do pool com o rascunho.
     linhas_todas: list[dict] = []
     contagens_depois = {status: 0 for status in STATUS_VALIDOS}
+    contextos = carregar_contextos(
+        con, [int(cand["curriculo_id"]) for cand in candidatos]
+    )
     for cand in candidatos:
         cid = int(cand["candidato_id"])
         score_antes, detalhe_antes = base_by_id.get(cid, (None, {}))
-        contexto = carregar_contexto(con, int(cand["curriculo_id"]))
+        contexto = contextos.get(int(cand["curriculo_id"]))
+        if contexto is None:
+            continue
         resultado = pontuar(contexto, perfil, pesos, gates)
         status_novo = _status(resultado.status_gates)
         contagens_depois[status_novo] += 1

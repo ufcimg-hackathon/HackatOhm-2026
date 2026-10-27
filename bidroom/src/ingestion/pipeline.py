@@ -88,36 +88,56 @@ def _ano(valor: str | None) -> int | None:
     return None
 
 
+def _texto_seguro(valor) -> str | None:
+    """Redige PII antes de gravar qualquer campo textual estruturado."""
+    if valor is None:
+        return None
+    return redigir(str(valor))
+
+
 def _persistir_fato(con, curriculo_id: int, fato: FatoExtraido) -> int:
     dados = fato.dados
     if fato.tipo == "competencia":
         cur = con.execute(
             "INSERT INTO competencias (curriculo_id, nome, anos, ultimo_uso, familia)"
             " VALUES (?, ?, ?, NULL, ?)",
-            (curriculo_id, dados["nome"], dados.get("anos"), dados.get("familia")),
+            (
+                curriculo_id,
+                _texto_seguro(dados["nome"]),
+                dados.get("anos"),
+                _texto_seguro(dados.get("familia")),
+            ),
         )
     elif fato.tipo == "experiencia":
         inicio, fim = _partes_periodo(str(dados.get("periodo") or ""))
+        tecnologias = [
+            _texto_seguro(item) or "" for item in (dados.get("tecnologias") or [])
+        ]
         cur = con.execute(
             "INSERT INTO experiencias (curriculo_id, empresa, papel, dominio,"
             " data_inicio, data_fim, tecnologias, resumo)"
             " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 curriculo_id,
-                dados.get("empresa"),
-                dados.get("papel"),
-                dados.get("dominio"),
+                _texto_seguro(dados.get("empresa")),
+                _texto_seguro(dados.get("papel")),
+                _texto_seguro(dados.get("dominio")),
                 inicio,
                 fim,
-                json.dumps(dados.get("tecnologias") or [], ensure_ascii=False),
-                dados.get("resumo"),
+                json.dumps(tecnologias, ensure_ascii=False),
+                _texto_seguro(dados.get("resumo")),
             ),
         )
     elif fato.tipo == "certificacao":
         cur = con.execute(
             "INSERT INTO certificacoes (curriculo_id, nome, emissor, ano)"
             " VALUES (?, ?, ?, ?)",
-            (curriculo_id, dados["nome"], dados.get("emissor"), dados.get("ano")),
+            (
+                curriculo_id,
+                _texto_seguro(dados["nome"]),
+                _texto_seguro(dados.get("emissor")),
+                dados.get("ano"),
+            ),
         )
     elif fato.tipo == "formacao":
         inicio, fim = _partes_periodo(str(dados.get("curso") or ""))
@@ -126,9 +146,9 @@ def _persistir_fato(con, curriculo_id: int, fato: FatoExtraido) -> int:
             " ano_inicio, ano_fim) VALUES (?, ?, ?, ?, ?, ?)",
             (
                 curriculo_id,
-                dados.get("grau"),
-                dados.get("curso"),
-                dados.get("instituicao"),
+                _texto_seguro(dados.get("grau")),
+                _texto_seguro(dados.get("curso")),
+                _texto_seguro(dados.get("instituicao")),
                 _ano(inicio),
                 _ano(fim),
             ),
@@ -136,11 +156,28 @@ def _persistir_fato(con, curriculo_id: int, fato: FatoExtraido) -> int:
     elif fato.tipo == "idioma":
         cur = con.execute(
             "INSERT INTO idiomas (curriculo_id, idioma, nivel) VALUES (?, ?, ?)",
-            (curriculo_id, dados["idioma"], dados.get("nivel")),
+            (
+                curriculo_id,
+                _texto_seguro(dados["idioma"]),
+                _texto_seguro(dados.get("nivel")),
+            ),
         )
     else:
         raise ValueError(f"tipo de fato desconhecido: {fato.tipo}")
-    return int(cur.lastrowid)
+    fato_id = int(cur.lastrowid)
+    dono = con.execute(
+        "SELECT c.dono FROM candidatos c"
+        " JOIN curriculos cur ON cur.candidato_id = c.id"
+        " WHERE cur.id = ?",
+        (curriculo_id,),
+    ).fetchone()
+    con.execute(
+        "INSERT OR IGNORE INTO atualidade_fatos"
+        " (tipo_fato, fato_id, responsavel, fonte, estado)"
+        " VALUES (?, ?, ?, 'curriculo', 'declarado')",
+        (fato.tipo, fato_id, dono["dono"] if dono else None),
+    )
+    return fato_id
 
 
 def ingerir_registro(
@@ -207,123 +244,143 @@ def ingerir_registro(
             dono = mapa_emails.get(email)
             if dono is not None and dono != candidato_id_forcado:
                 raise ValueError("e-mail do arquivo pertence a outro candidato")
-            mapa_emails[email] = candidato_id_forcado
         candidato_id = candidato_id_forcado
     else:
         candidato_id = mapa_emails.get(email) if email else None
 
-    if candidato_id is None:
-        proximo = con.execute(
-            "SELECT COALESCE(MAX(id), 0) + 1 AS n FROM candidatos"
-        ).fetchone()["n"]
-        idiomas = (
-            json.dumps(
-                [f.dados["idioma"] for f in extracao.idiomas], ensure_ascii=False
+    # A ingestão inteira é uma unidade: candidato, currículo, PII, fatos,
+    # evidências, resíduo e auditoria entram ou saem juntos. SAVEPOINT
+    # preserva uma transação externa, se o chamador já tiver uma aberta.
+    con.execute("SAVEPOINT ingestao_curriculo")
+    try:
+        if candidato_id is None:
+            proximo = con.execute(
+                "SELECT COALESCE(MAX(id), 0) + 1 AS n FROM candidatos"
+            ).fetchone()["n"]
+            idiomas = (
+                json.dumps(
+                    [f.dados["idioma"] for f in extracao.idiomas],
+                    ensure_ascii=False,
+                )
+                if extracao.idiomas
+                else None
             )
-            if extracao.idiomas
-            else None
-        )
+            cur = con.execute(
+                "INSERT INTO candidatos (nome_pseudonimo, origem, idiomas)"
+                " VALUES (?, 'base_hackathon', ?)",
+                (f"Candidato {proximo:03d}", idiomas),
+            )
+            candidato_id = int(cur.lastrowid)
+            candidato_criado = True
+
+        if not con.execute(
+            "SELECT 1 FROM disponibilidades WHERE candidato_id = ? LIMIT 1",
+            (candidato_id,),
+        ).fetchone():
+            con.execute(
+                "INSERT INTO disponibilidades"
+                " (candidato_id, fonte, estado)"
+                " VALUES (?, 'nao_informado', 'desconhecido')",
+                (candidato_id,),
+            )
+
+        versao_anterior = con.execute(
+            "SELECT COALESCE(MAX(versao), 0) AS v FROM curriculos"
+            " WHERE candidato_id = ?",
+            (candidato_id,),
+        ).fetchone()["v"]
+        versao = versao_anterior + 1
         cur = con.execute(
-            "INSERT INTO candidatos (nome_pseudonimo, origem, idiomas)"
-            " VALUES (?, 'base_hackathon', ?)",
-            (f"Candidato {proximo:03d}", idiomas),
-        )
-        candidato_id = int(cur.lastrowid)
-        candidato_criado = True
-        if email:
-            mapa_emails[email] = candidato_id
-
-    versao_anterior = con.execute(
-        "SELECT COALESCE(MAX(versao), 0) AS v FROM curriculos"
-        " WHERE candidato_id = ?",
-        (candidato_id,),
-    ).fetchone()["v"]
-    versao = versao_anterior + 1
-    cur = con.execute(
-        "INSERT INTO curriculos (candidato_id, nome_arquivo, caminho_cache,"
-        " checksum, n_paginas, versao, status_processamento, raw_texto)"
-        " VALUES (?, ?, ?, ?, ?, ?, 'processado', ?)",
-        (
-            candidato_id,
-            registro["nome_arquivo"],
-            registro["caminho_cache"],
-            checksum,
-            documento.n_paginas,
-            versao,
-            redigir(documento.texto),
-        ),
-    )
-    curriculo_id = int(cur.lastrowid)
-    # Atualiza sempre a data de atualização do candidato,
-    # não apenas quando candidato_id_forcado é usado.
-    con.execute(
-        "UPDATE candidatos SET atualizado_em = datetime('now') WHERE id = ?",
-        (candidato_id,),
-    )
-
-    pii_gravada = 0
-    vistos: set[tuple[str, str]] = set()
-    for achado in achados_pii:
-        chave = (str(achado["tipo"]), str(achado["valor"]))
-        if chave in vistos:
-            continue
-        vistos.add(chave)
-        salvar(
-            con,
-            cofre,
-            candidato_id,
-            str(achado["tipo"]),
-            str(achado["valor"]),
-            ator=ator,
-        )
-        pii_gravada += 1
-
-    fatos = 0
-    for fato in extracao.evidencias():
-        fato_id = _persistir_fato(con, curriculo_id, fato)
-        con.execute(
-            "INSERT INTO evidencias (tipo_fato, fato_id, trecho, pagina, nivel,"
-            " confianca) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO curriculos (candidato_id, nome_arquivo, caminho_cache,"
+            " checksum, n_paginas, versao, status_processamento, raw_texto)"
+            " VALUES (?, ?, ?, ?, ?, ?, 'processado', ?)",
             (
-                fato.tipo,
-                fato_id,
-                redigir(fato.trecho),
-                fato.pagina,
-                fato.nivel,
-                fato.confianca,
+                candidato_id,
+                redigir(registro["nome_arquivo"]),
+                registro["caminho_cache"],
+                checksum,
+                documento.n_paginas,
+                versao,
+                redigir(documento.texto),
             ),
         )
-        fatos += 1
-
-    for trecho in extracao.residual:
+        curriculo_id = int(cur.lastrowid)
         con.execute(
-            "INSERT INTO residual (curriculo_id, termo, trecho) VALUES (?, NULL, ?)",
-            (curriculo_id, redigir(trecho)),
+            "UPDATE candidatos SET atualizado_em = datetime('now') WHERE id = ?",
+            (candidato_id,),
         )
 
-    detalhes_auditoria = {
-        "checksum": checksum,
-        "versao": versao,
-        "fatos": fatos,
-        "pii": pii_gravada,
-    }
-    # Como agora sempre atualizamos atualizado_em, registramos as versões
-    # para fins de auditoria, mesmo quando não há candidato_id_forçado.
-    detalhes_auditoria["versao_anterior"] = int(versao_anterior)
-    detalhes_auditoria["versao_nova"] = int(versao)
-    registrar(
-        con,
-        acao=(
-            "atualizar_curriculo"
-            if candidato_id_forcado is not None
-            else "ingerir_curriculo"
-        ),
-        ator=ator,
-        entidade="curriculos",
-        entidade_id=curriculo_id,
-        detalhes=detalhes_auditoria,
-    )
-    con.commit()
+        pii_gravada = 0
+        vistos: set[tuple[str, str]] = set()
+        for achado in achados_pii:
+            chave = (str(achado["tipo"]), str(achado["valor"]))
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+            salvar(
+                con,
+                cofre,
+                candidato_id,
+                str(achado["tipo"]),
+                str(achado["valor"]),
+                ator=ator,
+                commit=False,
+            )
+            pii_gravada += 1
+
+        fatos = 0
+        for fato in extracao.evidencias():
+            fato_id = _persistir_fato(con, curriculo_id, fato)
+            con.execute(
+                "INSERT INTO evidencias (tipo_fato, fato_id, trecho, pagina, nivel,"
+                " confianca) VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    fato.tipo,
+                    fato_id,
+                    redigir(fato.trecho),
+                    fato.pagina,
+                    fato.nivel,
+                    fato.confianca,
+                ),
+            )
+            fatos += 1
+
+        for trecho in extracao.residual:
+            con.execute(
+                "INSERT INTO residual (curriculo_id, termo, trecho)"
+                " VALUES (?, NULL, ?)",
+                (curriculo_id, redigir(trecho)),
+            )
+
+        detalhes_auditoria = {
+            "checksum": checksum,
+            "versao": versao,
+            "fatos": fatos,
+            "pii": pii_gravada,
+            "versao_anterior": int(versao_anterior),
+            "versao_nova": int(versao),
+        }
+        registrar(
+            con,
+            acao=(
+                "atualizar_curriculo"
+                if candidato_id_forcado is not None
+                else "ingerir_curriculo"
+            ),
+            ator=ator,
+            entidade="curriculos",
+            entidade_id=curriculo_id,
+            detalhes=detalhes_auditoria,
+            commit=False,
+        )
+        con.execute("RELEASE SAVEPOINT ingestao_curriculo")
+    except Exception:
+        con.execute("ROLLBACK TO SAVEPOINT ingestao_curriculo")
+        con.execute("RELEASE SAVEPOINT ingestao_curriculo")
+        raise
+
+    if email:
+        mapa_emails[email] = int(candidato_id)
     return {
         "status": "processado",
         "curriculo_id": curriculo_id,

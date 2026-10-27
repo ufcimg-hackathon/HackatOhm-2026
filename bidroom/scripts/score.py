@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.governance.auditoria import registrar
 from src.ingestion.db import conectar
 from src.scoring.catalogo import CATALOGO
-from src.scoring.contexto import carregar_contexto
+from src.scoring.contexto import carregar_contextos
 from src.scoring.engine import pontuar
 from src.scoring.preset import carregar_versao
 
@@ -158,8 +158,13 @@ def main() -> int:
             for sigla in papeis
         }
         gravadas = 0
+        contextos = carregar_contextos(
+            con, [int(candidato["curriculo_id"]) for candidato in candidatos]
+        )
         for candidato in candidatos:
-            contexto = carregar_contexto(con, int(candidato["curriculo_id"]))
+            contexto = contextos.get(int(candidato["curriculo_id"]))
+            if contexto is None:
+                continue
             for perfil in catalogos:
                 resultado = pontuar(
                     contexto, perfil, preset.pesos, preset.gates

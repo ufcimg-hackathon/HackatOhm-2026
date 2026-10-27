@@ -11,7 +11,7 @@ import sqlite3
 
 from src.governance.auditoria import registrar
 from src.scoring.catalogo import CATALOGO
-from src.scoring.contexto import carregar_contexto
+from src.scoring.contexto import carregar_contexto, carregar_contextos
 from src.scoring.engine import ResultadoScore, pontuar
 from src.scoring.preset import (
     PresetConfig,
@@ -85,6 +85,17 @@ def recalcular_candidato(
     """
     disputa = obter_disputa_atual(con)
     if disputa is None:
+        return []
+    if disputa["edital_versao_id"] is not None:
+        from src.scoring.demanda import recalcular_candidato_demanda
+
+        return recalcular_candidato_demanda(
+            con,
+            candidato_id,
+            int(disputa["id"]),
+            ator=ator,
+        )
+    if disputa["preset_versao_id"] is None:
         return []
     preset: PresetConfig = carregar_versao(con, int(disputa["preset_versao_id"]))
     curriculo = ultimo_curriculo(con, candidato_id)
@@ -166,8 +177,13 @@ def recalcular_disputa(
     }
     gravadas = 0
 
+    contextos = carregar_contextos(
+        con, [int(candidato["curriculo_id"]) for candidato in candidatos]
+    )
     for candidato in candidatos:
-        contexto = carregar_contexto(con, int(candidato["curriculo_id"]))
+        contexto = contextos.get(int(candidato["curriculo_id"]))
+        if contexto is None:
+            continue
         for sigla, papel_id in papeis.items():
             perfil = CATALOGO.get(sigla)
             if perfil is None:
@@ -335,13 +351,29 @@ def rollback_preset(
             (alvo.versao_preset_id, disputa_id),
         )
 
-        existe = con.execute(
-            "SELECT COUNT(*) c FROM pontuacoes"
-            " WHERE disputa_id = ? AND versao_preset_id = ?",
+        # Não basta existir alguma pontuação na versão alvo: o rollback
+        # precisa cobrir o currículo atual de todos os candidatos. Se um
+        # currículo novo entrou depois da versão alvo, ele ficaria sem score
+        # e desapareceria do ranking.
+        faltando = con.execute(
+            """
+            WITH ultimo AS (
+                SELECT candidato_id, MAX(id) AS curriculo_id
+                FROM curriculos GROUP BY candidato_id
+            )
+            SELECT COUNT(*) AS c
+            FROM ultimo u
+            LEFT JOIN pontuacoes p
+              ON p.disputa_id = ?
+             AND p.versao_preset_id = ?
+             AND p.candidato_id = u.candidato_id
+             AND p.curriculo_versao_id = u.curriculo_id
+            WHERE p.id IS NULL
+            """,
             (disputa_id, alvo.versao_preset_id),
         ).fetchone()["c"]
         recalculou = False
-        if not existe:
+        if faltando:
             recalcular_disputa(
                 con, disputa_id, alvo.versao_preset_id,
                 ator=ator, commit=False,
