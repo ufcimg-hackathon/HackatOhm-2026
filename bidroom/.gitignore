@@ -1,0 +1,11 @@
+# dados locais e secrets — nunca versionados (handoff §2/§3)
+data/
+.env
+*.db
+*.docx
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

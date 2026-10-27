@@ -1,0 +1,17 @@
+# Preset "TI para o setor de energia" — estrutura de Fase 0.
+# Pesos, gates e âncoras do case entrando na Fase 3 (handoff §6, doc §22.8).
+#
+# Regras do formato (handoff):
+# - pesos somam 100 por papel;
+# - sempre há ao menos um gate eliminatório (G1–G6);
+# - âncoras do case (PMP 10, energia 8, pós 5, 10+ anos 5) entram DENTRO das
+#   categorias-mãe, nunca somadas por cima.
+
+versao_preset: "0.1-fase0"
+papel_ids:
+  - pm_scrum
+  - ba_bsa
+  - java
+  - bi_data
+
+# TODO Fase 3: preencher `pesos`, `gates`, `ancoras` conforme doc §22.8.

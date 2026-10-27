@@ -1,0 +1,8 @@
+streamlit
+pandas
+python-docx
+pydantic
+pytest
+requests
+pyyaml
+cryptography
