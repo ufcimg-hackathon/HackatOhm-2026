@@ -1,0 +1,63 @@
+{
+  "comparative_query_types": 10,
+  "total_queries_per_method": 50,
+  "linear_text_search_median_ms": 101.87646399998584,
+  "linear_text_search_p95_ms": 238.33443379995742,
+  "sqlite_search_median_ms": 0.3618275000007998,
+  "sqlite_search_p95_ms": 1.0819997499879719,
+  "speedup_ratio_of_medians": 281.5608653288118,
+  "all_results_equal": true,
+  "checks": [
+    {
+      "skill": "Python",
+      "documents_matching": 57,
+      "same_result": true
+    },
+    {
+      "skill": "Java",
+      "documents_matching": 186,
+      "same_result": true
+    },
+    {
+      "skill": "JavaScript",
+      "documents_matching": 159,
+      "same_result": true
+    },
+    {
+      "skill": "React",
+      "documents_matching": 64,
+      "same_result": true
+    },
+    {
+      "skill": "AWS",
+      "documents_matching": 115,
+      "same_result": true
+    },
+    {
+      "skill": "Docker",
+      "documents_matching": 58,
+      "same_result": true
+    },
+    {
+      "skill": "Kubernetes",
+      "documents_matching": 18,
+      "same_result": true
+    },
+    {
+      "skill": "SQL Server",
+      "documents_matching": 171,
+      "same_result": true
+    },
+    {
+      "skill": "PMP",
+      "documents_matching": 30,
+      "same_result": true
+    },
+    {
+      "skill": "Power BI",
+      "documents_matching": 15,
+      "same_result": true
+    }
+  ],
+  "scope": "A busca linear percorre texto DOCX já extraído e mantido em RAM. SQLite consulta índice preexistente. Custos de indexação não estão no tempo de consulta. Não mede trabalho humano."
+}

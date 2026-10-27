@@ -1,0 +1,17 @@
+# O dataset do desafio está incluído intencionalmente em dados/.
+# Não publicar saídas individualizadas sem rever consentimento/licença.
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.idea/
+.vscode/
+.DS_Store
+saida/
+*.sqlite
+*.sqlite3
+*.db
+
+# O código é publicado, arquivos intermediários são locais
+__pycache__/

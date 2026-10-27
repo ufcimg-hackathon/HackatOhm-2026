@@ -1,0 +1,24 @@
+{
+  "tipo": "SIMULACAO_FICTICIA_NAO_ORIGINADA_DOS_CURRICULOS",
+  "papéis": 3,
+  "candidatos": 7,
+  "combinacoes_sem_repetir": 210,
+  "equipes_viaveis": 13,
+  "pontuacao_total_ilustrativa": 28,
+  "composicao": {
+    "gerente": {
+      "id": "P02",
+      "pontos_na_funcao": 10
+    },
+    "especialista_energia": {
+      "id": "P01",
+      "pontos_na_funcao": 13
+    },
+    "analista": {
+      "id": "P03",
+      "pontos_na_funcao": 5
+    }
+  },
+  "tempo_busca_ms": 0.12518899998781308,
+  "aviso": "Os critérios e perfis são fictícios. O script demonstra restrições e cálculo, não valida critérios de editais reais, nem extrai comprovações dos currículos."
+}

@@ -1,0 +1,82 @@
+{
+  "executado_em_utc": "2026-10-27T14:03:53.221006+00:00",
+  "commit": "c4fa83cf010afc600d9de7e7408c805ef3dc3702",
+  "corpus_sha256_agregado": "279a806f730901aba8f9122390fb8d492321bd91613ff39c1697eee3d6a865e1",
+  "arquivo_count": 228,
+  "python": "3.12.14",
+  "python_docx": "1.2.0",
+  "sqlite": "3.53.1",
+  "cpu_logicas": 12,
+  "sistema": "Linux",
+  "ingestao": {
+    "status": {
+      "processado": 228
+    },
+    "segundos": 27.66613006499938,
+    "mediana_segundos_por_doc": 0.11990251599945623,
+    "p95_segundos_por_doc": 0.17617122200044832,
+    "max_segundos_por_doc": 0.4968459720003011
+  },
+  "repeticao": {
+    "segundos": 0.032903320999139396,
+    "status": {
+      "duplicado": 228
+    },
+    "contagens_inalteradas": true
+  },
+  "contagens": {
+    "candidatos": 217,
+    "curriculos": 228,
+    "competencias": 1805,
+    "experiencias": 1018,
+    "certificacoes": 101,
+    "formacoes": 865,
+    "idiomas": 8,
+    "evidencias": 3797,
+    "residual": 449,
+    "cofre_dados_pessoais": 1383,
+    "registros_auditoria": 1612
+  },
+  "curriculos_com_fatos_por_tipo": {
+    "competencias": 227,
+    "experiencias": 187,
+    "certificacoes": 64,
+    "formacoes": 202,
+    "idiomas": 6
+  },
+  "campos_ausentes": {
+    "experiencias": {
+      "empresa": 714,
+      "papel": 177,
+      "data_inicio": 0,
+      "data_fim": 0
+    },
+    "certificacoes": {
+      "emissor": 101,
+      "ano": 101
+    },
+    "formacoes": {
+      "instituicao": 865,
+      "ano_inicio": 810,
+      "ano_fim": 813
+    },
+    "idiomas": {
+      "nivel": 8
+    }
+  },
+  "qualidade": {
+    "validacao_humana": false,
+    "integridade_sqlite": "ok",
+    "violacoes_fk": 0,
+    "todos_nao_curados": true,
+    "certificacoes_sem_comprovacao": true
+  },
+  "limites": [
+    "Uma carga em disco; cache do sistema pode estar aquecido.",
+    "Tempo de inicializacao do Python e criacao do schema excluidos.",
+    "Regras atuais sem alteracao; fatos sao preliminares.",
+    "Identidade por email e ordem de versoes nao foram confirmadas.",
+    "Base contem dados pessoais e nao deve ser publicada.",
+    "Nao e medicao de economia humana."
+  ]
+}

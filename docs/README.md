@@ -6,9 +6,13 @@ Esta pasta reúne os documentos oficiais e materiais de apoio do projeto da equi
 
 | Arquivo | Descrição |
 |---------|-----------|
+| [pesquisa-algoritmos-ingestao.md](./pesquisa-algoritmos-ingestao.md) | Comparação de algoritmos, complexidade e resultado da primeira carga experimental dos 228 currículos. |
+| [validacao-impacto-e-pitch.md](./validacao-impacto-e-pitch.md) | Plano para medir economia líquida de tempo, fortalecer a proposta e apresentar o valor da solução. |
+| [consolidacao-da-proposta.md](./consolidacao-da-proposta.md) | Consolidação da proposta: dois processos, gamificação, referências, impacto e decisões abertas para a equipe. |
 | [regulamento-hackatohm-2026.pdf](./regulamento-hackatohm-2026.pdf) | Regulamento oficial do hackathon (regras, critérios e prazos). |
 | [Guia_entrega_video_HackatOhm2026.pdf](./Guia_entrega_video_HackatOhm2026.pdf) | Guia para gravação e entrega do vídeo de apresentação. |
 | [Modelo_resumo_HackatOhm2026-1.docx](./Modelo_resumo_HackatOhm2026-1.docx) | Modelo do resumo do projeto a ser preenchido e entregue. |
+| [planejamento-evolucao-bidroom.md](./planejamento-evolucao-bidroom.md) | Etapas de evolução do Bid Room com foco na atualização contínua da base e recomendação de equipes. |
 
 ## Organização
 

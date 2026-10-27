@@ -1,0 +1,234 @@
+{
+  "analysis_utc": "2026-10-27T14:37:24.637106+00:00",
+  "method": "DOCX word/document.xml + header/footer, lxml; regex skills; SQLite; pseudonymized",
+  "archive_size_bytes": 11600849,
+  "documents_attempted": 228,
+  "documents_ok": 228,
+  "documents_failed": 0,
+  "non_docx_or_zip_issues": 0,
+  "unique_binary_sha256": 228,
+  "duplicate_binary_document_count": 0,
+  "unique_normalized_text_sha256": 226,
+  "duplicate_normalized_text_document_count": 2,
+  "text_chars_total": 4393921,
+  "text_chars_mean": 19271.583333333332,
+  "text_chars_median": 18471.0,
+  "text_chars_min": 773,
+  "text_chars_max": 51470,
+  "documents_with_tables": 153,
+  "total_tables": 290,
+  "total_paragraphs": 49779,
+  "table_paragraphs": 5207,
+  "documents_with_email_pattern": 194,
+  "documents_with_phone_pattern": 171,
+  "documents_with_degree_keyword": 183,
+  "documents_with_experience_years_claim": 108,
+  "documents_with_known_skill": 227,
+  "total_document_skill_pairs": 3713,
+  "distinct_skill_vocabulary_found": 49,
+  "skills_per_document_median": 18.0,
+  "skills_per_document_mean": 16.285087719298247,
+  "top_skills": [
+    {
+      "skill": "SQL",
+      "documents_mentioning": 216
+    },
+    {
+      "skill": "Scrum",
+      "documents_mentioning": 199
+    },
+    {
+      "skill": "Jira",
+      "documents_mentioning": 187
+    },
+    {
+      "skill": "Java",
+      "documents_mentioning": 186
+    },
+    {
+      "skill": "HTML",
+      "documents_mentioning": 175
+    },
+    {
+      "skill": "SQL Server",
+      "documents_mentioning": 171
+    },
+    {
+      "skill": "JavaScript",
+      "documents_mentioning": 159
+    },
+    {
+      "skill": "Oracle Database",
+      "documents_mentioning": 150
+    },
+    {
+      "skill": "CSS",
+      "documents_mentioning": 147
+    },
+    {
+      "skill": "Linux",
+      "documents_mentioning": 140
+    },
+    {
+      "skill": "MySQL",
+      "documents_mentioning": 135
+    },
+    {
+      "skill": "REST",
+      "documents_mentioning": 134
+    },
+    {
+      "skill": "Spring",
+      "documents_mentioning": 118
+    },
+    {
+      "skill": "Angular",
+      "documents_mentioning": 116
+    },
+    {
+      "skill": "Git",
+      "documents_mentioning": 116
+    },
+    {
+      "skill": "AWS",
+      "documents_mentioning": 115
+    },
+    {
+      "skill": "Hibernate",
+      "documents_mentioning": 112
+    },
+    {
+      "skill": "C++",
+      "documents_mentioning": 101
+    },
+    {
+      "skill": "Node.js",
+      "documents_mentioning": 99
+    },
+    {
+      "skill": "Excel",
+      "documents_mentioning": 98
+    },
+    {
+      "skill": "MongoDB",
+      "documents_mentioning": 95
+    },
+    {
+      "skill": "Kafka",
+      "documents_mentioning": 65
+    },
+    {
+      "skill": "React",
+      "documents_mentioning": 64
+    },
+    {
+      "skill": "PowerPoint",
+      "documents_mentioning": 63
+    },
+    {
+      "skill": "Docker",
+      "documents_mentioning": 58
+    }
+  ],
+  "timing_seconds": {
+    "zip_read_seconds": {
+      "samples": [
+        0.15878,
+        0.08021,
+        0.07634
+      ],
+      "median": 0.08021,
+      "min": 0.07634,
+      "max": 0.15878
+    },
+    "extract_and_detect_seconds": {
+      "samples": [
+        8.1481,
+        9.13708,
+        8.35354
+      ],
+      "median": 8.35354,
+      "min": 8.1481,
+      "max": 9.13708
+    },
+    "xml_extract_seconds": {
+      "samples": [
+        2.55871,
+        2.97225,
+        2.72604
+      ],
+      "median": 2.72604,
+      "min": 2.55871,
+      "max": 2.97225
+    },
+    "regex_detect_seconds": {
+      "samples": [
+        5.32011,
+        5.85386,
+        5.34061
+      ],
+      "median": 5.34061,
+      "min": 5.32011,
+      "max": 5.85386
+    },
+    "sqlite_setup_insert_index_seconds": {
+      "samples": [
+        0.03199,
+        0.03022,
+        0.02315
+      ],
+      "median": 0.03022,
+      "min": 0.02315,
+      "max": 0.03199
+    },
+    "query_500_seconds": {
+      "samples": [
+        0.04267,
+        0.04621,
+        0.03881
+      ],
+      "median": 0.04267,
+      "min": 0.03881,
+      "max": 0.04621
+    },
+    "end_to_end_seconds": {
+      "samples": [
+        8.38171,
+        9.29388,
+        8.49194
+      ],
+      "median": 8.49194,
+      "min": 8.38171,
+      "max": 9.29388
+    },
+    "avg_end_to_end_milliseconds_per_document": {
+      "samples": [
+        36.76189,
+        40.76261,
+        37.24534
+      ],
+      "median": 37.24534,
+      "min": 36.76189,
+      "max": 40.76261
+    }
+  },
+  "search_benchmark": {
+    "queries": 500,
+    "total_seconds": 0.03880921899997247,
+    "median_ms": 0.04418999998279105,
+    "p95_ms": 0.24836325000592252,
+    "max_ms": 0.800363999928777,
+    "total_matches_across_queries": 36026
+  },
+  "db_documents": 228,
+  "db_skill_relations": 3713,
+  "repetitions": 3,
+  "limitations": [
+    "Competência encontrada por regex significa menção textual, não domínio comprovado.",
+    "O código não valida nomes, cargos, organizações, diplomas, comprovações nem precisão contra gabarito humano.",
+    "O tempo de execução automatizada não comprova redução do tempo humano em licitações.",
+    "Não foi usado OCR, NER ou modelo de linguagem: resultados não os validam.",
+    "A base fornecida tem DOCX; não representa necessariamente a diversidade de uma empresa.",
+    "Dados de contato aparecem nos originais. Banco gerado não inclui nomes, e-mails, telefones ou texto original."
+  ]
+}
