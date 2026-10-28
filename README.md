@@ -17,7 +17,7 @@ Materiais complementares são opcionais, com links informados no resumo.
 
 ## Como entregar
 
-1. Caso possua, armazene os códigos  [`src/`](src). Os dados dos curriculos estão em [`data/curriculos_raw`](data/curriculos_raw).
+1. O código está em [`src/`](src): [`experimentos/`](src/experimentos) reúne a análise reproduzível e [`bidroom/`](src/bidroom) contém o protótipo. Os currículos estão em [`data/curriculos_raw/`](data/curriculos_raw).
    > Considerando a [Política de Inovação do UFCIMG](https://www2.conselhodiretor.cefetmg.br/conselho-diretor/resolucoes-anos-2020/2022-2/cd-res-2022-018/), qualquer código desenvolvido em atividades acadêmicas ou utilizando recursos da instituição é de titularidade total ou parcial da UFCIMG. Assim, sua reprodução, comercialização, distribuição e uso por terceiros dependem de autorização institucional. Os criadores do software são os autores listados no arquivo, tendo sua autoria reconhecida e preservada.
 
 2. Caso tenha criado e/ou manipulado algum dado, armazene os arquivos em [`data/`](data).
@@ -39,4 +39,34 @@ Materiais complementares são opcionais, com links informados no resumo.
 
 | Nome | Curso |
 | ---- | ----- |
-|      |       |
+| Carlos Reis (líder) | Engenharia de Computação — 6º período |
+| Luca Magni | Engenharia de Computação — 6º período |
+| Pedro Oliveira | Engenharia de Computação — 6º período |
+
+
+## Executar e conferir
+
+Na raiz, com Python 3.10 ou superior:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m unittest discover -s src/experimentos/tests -p 'test_*.py' -v
+cd src/bidroom
+python -m pytest -q
+```
+
+No PowerShell, ative o mesmo ambiente com `.venv\Scripts\Activate.ps1`.
+A suíte do BidRoom deve ser executada dentro de `src/bidroom/`, pois seus
+imports e caminhos locais são relativos ao aplicativo.
+
+- [Comandos de ingestão e busca](docs/README_TESTES_BIDROOM.md).
+- [Instalação e uso do protótipo](src/bidroom/README.md).
+- [Relatório de evidências](docs/relatorio_evidencias_tecnicas.md).
+- [Resumo editável](docs/D04_404EquipeNaoEncontrada_Resumo.docx).
+- [Roteiro do pitch](docs/roteiro-pitch.md).
+
+O experimento mede leitura e busca de menções. O protótipo possui seu próprio
+schema de perfis, evidências e editais. A organização conjunta não converte
+resultados do experimento em fatos validados no protótipo.

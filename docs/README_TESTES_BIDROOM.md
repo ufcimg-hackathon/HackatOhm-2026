@@ -1,46 +1,81 @@
-# Testes e evidências técnicas — BidRoom
+# Testes e reprodução do BidRoom
 
-Este material pode ser integrado ao repositório do HackatOhm 2026. **Não substitua o README de envio da equipe.** Os documentos curriculares foram fornecidos pela EloGroup como parte do desafio, conforme informado pela equipe.
+O repositório contém dois componentes complementares, com bancos separados.
 
-## Estrutura
+| Caminho | Conteúdo |
+|---|---|
+| `src/experimentos/` | Leitura DOCX/XML, catálogo de competências, SQLite, benchmark e simulação de equipe. |
+| `src/experimentos/tests/` | Testes do experimento, incluindo os 228 DOCX. |
+| `src/bidroom/` | Aplicativo Streamlit, serviços de ingestão, evidências, editais e composição. |
+| `src/bidroom/tests/` | Testes do protótipo e da jornada integrada. |
+| `data/curriculos_raw/` | 228 DOCX fornecidos para o desafio. |
+| `data/resultados_referencia/` | JSONs históricos dos ensaios, preservados. |
+| `saida/` | Resultados locais do experimento, ignorados pelo Git. |
 
-- `src/analisar_curriculos.py`: leitura DOCX, menções a competências, normalização inicial e inserção no SQLite.
-- `src/benchmark_buscas.py`: comparação cronometrada de busca linear no texto já extraído e pesquisa em SQLite indexado.
-- `src/simular_equipe.py`: simulação fictícia da lógica de composição de equipes.
-- `src/busca_linguagem_natural.py`: demonstração de filtro simples por palavras e regras (não usa IA generativa).
-- `src/tests/`: testes de unidade e integração com os documentos do desafio.
-- `data/curriculos_raw/`: 228 DOCX do desafio.
-- `data/resultados_referencia/`: JSON com dados registrados nos testes anteriores, sem alteração.
-- `.github/workflows/testes.yml`: workflow de testes de unidade e integração no GitHub Actions.
+## Instalação
 
-## Comandos no Fedora/Linux
-
-Na raiz do repositório:
+Na raiz do repositório, com Python 3.10 ou superior:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python -m unittest discover -s src/tests -p 'test_*.py' -v
-python src/analisar_curriculos.py --input data/curriculos_raw --output saida --repeticoes 3
-python src/benchmark_buscas.py --input data/curriculos_raw --database saida/curriculos_anonimizados.sqlite --output saida/benchmark_buscas.json --repeticoes 5
-python src/simular_equipe.py --output saida/simulacao_equipe.json
 ```
 
-Os scripts também aceitam um arquivo ZIP de entrada, caso a base esteja compactada.
+No PowerShell, use `python -m venv .venv` e `.venv\Scripts\Activate.ps1`.
+O arquivo raiz inclui as dependências do BidRoom e o `lxml` do experimento.
 
-## Interpretação das métricas
+## Experimento reproduzível
 
-- A análise inicial identificou **228/228 DOCX legíveis**, **3.713 relações textuais documento–competência** e **2 duplicatas textuais adicionais**.
-- O ensaio de origem registrou **8,49 segundos** de mediana para o lote, e uma busca indexada significativamente mais rápida que a varredura de textos nesse ambiente.
-- Tempo de processamento de máquina **não** significa tempo economizado por pessoas.
-- Detecção de uma tecnologia por Regex **não** comprova experiência, certificação ou aderência a edital.
-- A simulação de equipes utiliza sete perfis artificiais, separados dos currículos, com três funções.
-- Integrações com Drive, Jira e SharePoint, validação documental automática e atualização por eventos são propostas e não estão implementadas.
-- A duração varia conforme máquina, sistema, carga e execução. Não substitua registros anteriores por resultados novos sem identificá-los.
+Execute na raiz, com o ambiente ativado:
 
-## Cuidados antes de publicar
+```bash
+python -m unittest discover -s src/experimentos/tests -p 'test_*.py' -v
+python src/experimentos/analisar_curriculos.py --input data/curriculos_raw --output saida --repeticoes 3
+python src/experimentos/benchmark_buscas.py --input data/curriculos_raw --database saida/curriculos_anonimizados.sqlite --output saida/benchmark_buscas.json --repeticoes 5
+python src/experimentos/simular_equipe.py --output saida/simulacao_equipe.json
+python src/experimentos/busca_linguagem_natural.py --database saida/curriculos_anonimizados.sqlite --consulta 'Python e AWS'
+```
 
-Os currículos foram apresentados como fictícios, mas têm nomes e contatos de exemplo. Confirme com o responsável pelo desafio se podem ser disponibilizados em repositório público. Caso contrário, mantenha `data/curriculos_raw/` em repositório privado. O banco gerado está em `saida/`, excluído pelo `.gitignore`.
+A ingestão também aceita ZIP. O experimento recria seu banco de saída a cada
+execução; use a pasta `saida/` e preserve os JSONs de referência.
 
-O regulamento do evento e as políticas institucionais devem ser observados na divulgação dos códigos e dos dados.
+## Protótipo
+
+A partir da raiz, com o mesmo ambiente ativo:
+
+```bash
+cd src/bidroom
+python -m pytest -q -rs
+python scripts/build_db.py --db data/demo.db
+```
+
+Para ingestão, prepare o inventário e a chave local conforme o
+[README do aplicativo](../src/bidroom/README.md). Depois:
+
+```bash
+python scripts/ingest.py --db data/demo.db --csv data/inventario_curriculos.csv
+python scripts/score.py --db data/demo.db
+python -m streamlit run app.py
+```
+
+Os testes que dependem de `data/cache_drive/` e do inventário são ignorados
+quando esses artefatos locais não existem. O corpus em `data/curriculos_raw/`
+na raiz continua sendo testado pela suíte independente. Não se deve anunciar
+que todos os testes do protótipo passaram quando houver casos ignorados.
+
+## Interpretação
+
+O ensaio de referência leu 228/228 DOCX, identificou 3.713 associações
+textuais e duas duplicatas textuais adicionais. A mediana registrada foi
+8,49 segundos. A comparação de consultas usa texto já extraído e índice
+preexistente; não mede horas de trabalho dos gestores.
+
+A simulação independente usa sete perfis artificiais. Menções a competências
+não comprovam domínio ou certificações. Integrações externas e o impacto
+operacional permanecem propostas. O protótipo não tem autenticação e não
+está apto a receber dados pessoais reais em um piloto.
+
+Os bancos, chaves e dados locais do aplicativo ficam ignorados pelo Git. Os
+originais do desafio devem respeitar as condições de uso e divulgação de
+quem os forneceu.

@@ -1,33 +1,35 @@
 # Documentação
 
-Esta pasta reúne os documentos oficiais e materiais de apoio do projeto da equipe *Elogroup* no HackatOhm 2026.
+Documentos oficiais e materiais atuais da equipe 404: Equipe Não Encontrada.
 
-## Arquivos
-
-| Arquivo | Descrição |
-|---------|-----------|
-| [pesquisa-algoritmos-ingestao.md](./pesquisa-algoritmos-ingestao.md) | Comparação de algoritmos, complexidade e resultado da primeira carga experimental dos 228 currículos. |
-| [validacao-impacto-e-pitch.md](./validacao-impacto-e-pitch.md) | Plano para medir economia líquida de tempo, fortalecer a proposta e apresentar o valor da solução. |
-| [consolidacao-da-proposta.md](./consolidacao-da-proposta.md) | Consolidação da proposta: dois processos, gamificação, referências, impacto e decisões abertas para a equipe. |
-| [regulamento-hackatohm-2026.pdf](./regulamento-hackatohm-2026.pdf) | Regulamento oficial do hackathon (regras, critérios e prazos). |
-| [Guia_entrega_video_HackatOhm2026.pdf](./Guia_entrega_video_HackatOhm2026.pdf) | Guia para gravação e entrega do vídeo de apresentação. |
-| [Modelo_resumo_HackatOhm2026-1.docx](./Modelo_resumo_HackatOhm2026-1.docx) | Modelo do resumo do projeto a ser preenchido e entregue. |
-| [planejamento-evolucao-bidroom.md](./planejamento-evolucao-bidroom.md) | Etapas de evolução do Bid Room com foco na atualização contínua da base e recomendação de equipes. |
+| Arquivo | Finalidade |
+|---|---|
+| [Resumo editável](D04_404EquipeNaoEncontrada_Resumo.docx) | Proposta no modelo oficial; completar o link do vídeo antes da entrega. |
+| [Resumo em PDF](D04_404EquipeNaoEncontrada_Resumo.pdf) | Versão para envio, com no máximo duas páginas. |
+| [Roteiro do pitch](roteiro-pitch.md) | Apresentação de até cinco minutos com demonstração e impacto. |
+| [Relatório de evidências técnicas](relatorio_evidencias_tecnicas.md) | Método, resultados medidos, limitações e cenário de impacto. |
+| [Testes e reprodução](README_TESTES_BIDROOM.md) | Instalação e comandos para os experimentos e o protótipo. |
+| [Execução validada](execucao_validada_20261027.md) | Verificações executadas após a reorganização. |
+| [Métricas da carga inicial](metricas-ingestao-baseline.json) | Registro histórico do primeiro ensaio do pipeline BidRoom; não confundir com o experimento independente. |
+| [Métricas do protótipo](../src/bidroom/docs/metricas_etapa8.md) | Jornada integrada, desempenho e limites do BidRoom. |
+| [Demonstração detalhada](../src/bidroom/docs/roteiro_demo_etapa8.md) | Apoio técnico para ensaio; não substitui o pitch de cinco minutos. |
+| [Case](case-hackathon.pdf) | Problema e entregáveis específicos da EloGroup. |
+| [Regulamento](regulamento-hackatohm-2026.pdf) | Regras, critérios e prazo do evento. |
+| [Guia de entrega e vídeo](Guia_entrega_video_HackatOhm2026.pdf) | Formato e procedimento de envio. |
+| [Modelo oficial](Modelo_resumo_HackatOhm2026-1.docx) | Referência de seções e formatação. |
 
 ## Organização
 
-- Documentos oficiais da organização: mantenha o nome original do arquivo.
-- Novos documentos da equipe: use nomes em minúsculas, sem espaços, separados por hífen (ex.: arquitetura-solucao.md).
-- Prefira Markdown para textos editáveis; use PDF/DOCX apenas para documentos finais ou oficiais.
-- Imagens e anexos: crie uma subpasta assets/ e referencie-os a partir dos documentos.
-- Ao adicionar um arquivo, atualize a tabela acima.
+Preservar os nomes dos documentos oficiais. Novos textos de apoio usam nomes
+em minúsculas, separados por hífen. Documentos finais seguem o nome exigido
+pela organização. Atualizar este índice ao adicionar ou retirar materiais.
 
-## Checklist de entrega
+## Antes de enviar
 
-- [ ] Ler o regulamento
-- [ ] Preencher o modelo de resumo
-- [ ] Gravar e enviar o vídeo conforme o guia
-- [ ] Enviar o e-mail de entrega do resumo
-- [ ] Armazenar o resumo enviado nesta pasta com o nome correto
+- Completar e testar o link do vídeo; duração máxima de cinco minutos.
+- Conferir o PDF final com até duas páginas e seção 5 em um parágrafo de 150–200 palavras.
+- Revisar fontes, ferramentas e declaração de apoio de IA.
+- Enviar um único e-mail aos mentores, com cópia para hackatohm@gmail.com, conforme o guia.
+- Guardar nesta pasta a versão efetivamente enviada.
 
-Qualquer dúvida, ver o [README principal](../README.md) do HackatOhm 2026. Se as dúvidas persistirem, entre em contato com os professores mentores do desafio por meio do canal oficial disponibilizado por eles.
+O envio do e-mail e a disponibilidade do vídeo devem ser confirmados pela equipe.

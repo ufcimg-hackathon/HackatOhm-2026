@@ -2,7 +2,7 @@
 
 ## A. Método e escopo
 
-**Data:** 27/10/2026. **Entrada:** base `curriculos_raw.zip` fornecida pela EloGroup e encaminhada pela equipe, 228 currículos DOCX. **Independência:** a análise executada aqui não usa o protótipo anterior. **Processo:** ler ZIP → interpretar XML/DOCX (inclusive tabelas e cabeçalhos) → reconhecer padrões e normalizar aliases de tecnologias → gravar SQLite → executar consultas e ensaio de busca. Três execuções completas para temporização. O código e os JSONs acompanham este relatório. Na versão organizada para o repositório, os DOCX estão em `data/curriculos_raw/` e os scripts em `src/`.
+**Data:** 27/10/2026. **Entrada:** base `curriculos_raw.zip` fornecida pela EloGroup e encaminhada pela equipe, 228 currículos DOCX. **Independência:** a análise executada aqui não usa o protótipo anterior. **Processo:** ler ZIP → interpretar XML/DOCX (inclusive tabelas e cabeçalhos) → reconhecer padrões e normalizar aliases de tecnologias → gravar SQLite → executar consultas e ensaio de busca. Três execuções completas para temporização. O código e os JSONs acompanham este relatório. Na versão organizada para o repositório, os DOCX estão em `data/curriculos_raw/` e os scripts em `src/experimentos/`.
 
 ## B. Resultados realmente observados
 
@@ -44,7 +44,7 @@ Variação observada do ciclo: 8.382–9.294 segundos. Tempos de diferentes est�
 | Busca SQLite com índice preexistente | 0.362 ms |
 | **Razão das medianas (linear / indexada)** | **281.6×** |
 
-Foram pesquisadas 10 competências, com 50 consultas por método. Quantidades de resultados foram iguais nas 50 comparações (`all_results_equal=true`). **Esta comparação mede tempo de CPU, não horas dos gestores; o pré-processamento da base está fora do tempo individual de consulta.**
+Foram pesquisadas 10 competências, com 50 consultas por método. Quantidades de resultados foram iguais nas 50 comparações (`all_results_equal=true`). **Esta comparação mede latência de consultas automatizadas, não horas dos gestores; o pré-processamento da base está fora do tempo individual de consulta.**
 
 ### Menções mais frequentes — não são qualificações confirmadas
 
@@ -63,20 +63,23 @@ Foram pesquisadas 10 competências, com 50 consultas por método. Quantidades de
 
 ## C. Demonstração com perfis simulados, separada dos currículos DOCX
 
-Uma simulação de apenas 7 perfis fictícios para 3 funções encontrou 13 composições viáveis entre 210 arranjos sem repetição. A equipe escolhida teve **28 pontos sob regras ilustrativas**, com requisitos obrigatórios, disponibilidade e **apenas fatos marcados como documentalmente comprovados na simulação**. O script `simular_equipe.py` demonstra lógica de elegibilidade e composição, mas NÃO avalia editais verdadeiros nem comprova a experiência das pessoas da base enviada.
+Uma simulação de apenas 7 perfis fictícios para 3 funções encontrou 13 composições viáveis entre 210 arranjos sem repetição. A equipe escolhida teve **28 pontos sob regras ilustrativas**, com requisitos obrigatórios, disponibilidade e **apenas fatos marcados como documentalmente comprovados na simulação**. O script `src/experimentos/simular_equipe.py` demonstra lógica de elegibilidade e composição, mas NÃO avalia editais verdadeiros nem comprova a experiência das pessoas da base enviada.
 
-## D. Impacto anual: apenas cenários aritméticos do case
+## D. Esforço atual informado e impacto ainda não medido
 
-O case apresenta ~40 disputas anuais e 15–25 **horas conjuntas** de 2–3 gestores por disputa: **600–1.000 horas-pessoa por ano**, sem multiplicar novamente pelo número de pessoas. O cenário de referência de 20 h/disputa é equivalente a 800 h/ano.
+O case informa aproximadamente 40 disputas anuais e 15–25 **horas conjuntas**
+de dois a três gestores por disputa: **600–1.000 horas-pessoa por ano**, sem
+multiplicar novamente pelo número de pessoas. Esses números descrevem a
+premissa do problema apresentada no desafio, ainda sujeita a validação com
+a empresa.
 
-| Redução hipotética no esforço comercial | Horas brutas anuais liberadas |
-|---|---:|
-| 20% | 160 h |
-| 40% | 320 h |
-| 60% | 480 h |
-| 75% | 600 h |
-
-O efeito **líquido** depende de manutenção. Se 1.000 profissionais gastarem 5 minutos em cada atualização extra, a rotina **trimestral custaria 333 h/ano**, e a **mensal, 1.000 h/ano**. Na hipótese de ganho bruto de 600 h/ano, o saldo parcial seria +267 h (trimestral) ou −400 h (mensal), **antes** de conferir evidências, implantação, licenças e suporte, e considerando todas as revisões como esforço incremental. Não há estimativa observada de economia operacional real.
+A expectativa é tornar rápidas as três primeiras etapas do fluxo:
+**localizar profissionais, encontrar comprovações e consultar disponibilidade**.
+Com a base alimentada e atualizada, perfis indexados, documentos vinculados
+às competências e informações de disponibilidade poderão ser recuperados
+por consulta. Isso reduz buscas em pastas, pedidos repetidos de documentos
+e contatos manuais, concentrando a atuação do gestor na formação da equipe
+e na revisão da proposta.
 
 ## E. Revisão crítica da proposta inicial (o que mudaria)
 
@@ -84,7 +87,7 @@ O efeito **líquido** depende de manutenção. Se 1.000 profissionais gastarem 5
 2. **Reduzir as afirmações do piloto:** a leitura já foi comprovada; extração semântica, precisão de cargos/empresas/datas e checagem de diplomas **não** foram comprovadas. Evitar chamar a base de 100% correta.
 3. **Tratar comprovação como entidade independente do currículo:** declaração, evidência recebida, validação humana, validade e aceitação específica no edital são etapas distintas. Nem uma regex nem um LLM verificam automaticamente a autenticidade de um atestado.
 4. **Não confundir quantidade de palavras técnicas com mérito:** currículos extensos, com tabelas de tecnologias, podem mencionar muitos termos sem demonstrar nível, período, projeto ou atividade. O vocabulário atual é útil para **busca inicial**, não para ranquear profissional automaticamente.
-5. **Deixar gamificação como mecanismo de manutenção, não eixo central:** um programa mensal de 5 min por 1.000 pessoas pode custar mais horas que a economia projetada; começar por atualização ao concluir projetos ou renovar certificações, com lembretes seletivos.
+5. **Deixar gamificação como mecanismo de manutenção, não eixo central:** medir o esforço de atualização e revisão; começar por eventos como conclusão de projetos ou renovação de certificações, com lembretes seletivos.
 6. **Concentrar o pitch numa história verificável:** arquivo importado → dados estruturados → busca → requisito do edital → evidência/status → sugestão fictícia de equipe → impacto por hipótese transparente.
 7. **Privacidade:** a base contém padrões de contatos pessoais. O banco entregue é pseudonimizado e as métricas públicas são agregadas; ao publicar em GitHub público, confirmar se os arquivos fictícios podem ser redistribuídos e se contatos não correspondem a terceiros reais; não divulgar hashes ou registros individuais sem conferir o contexto.
 8. **Diversidade de fontes:** a amostra tem somente DOCX, em grande parte currículos técnicos em inglês. Não generalizar os resultados para PDFs digitalizados, currículos em português ou o acervo de uma empresa real.
@@ -97,6 +100,32 @@ O efeito **líquido** depende de manutenção. Se 1.000 profissionais gastarem 5
 
 **Ainda não demonstrado:** F1 de extração com gabarito humano, detecção confiável de cargos e experiências por pessoa, correspondência a editais reais, autenticidade das comprovações, atualização contínua, LGPD implementada, impacto operacional entre gestores e qualquer melhoria na taxa de sucesso em concorrências.
 
-**Teste de precisão necessário antes de usar em decisão real:** amostra de 20–30 currículos com anotações humanas independentes; calcular precisão/recall/F1 por campo e registrar falsos positivos e omissões. O usuário requisitou uma avaliação imediata, então este relatório apresenta **as métricas que podem ser medidas com rigor hoje** e não inventa o gabarito que não existe.
+**Teste de precisão necessário antes de usar em decisão real:** amostra de 20–30 currículos com anotações humanas independentes; calcular precisão/recall/F1 por campo e registrar falsos positivos e omissões. Os resultados disponíveis medem leitura e consistência; a precisão semântica depende de um gabarito revisado.
 
 **Referências do desafio:** Case B EloGroup, slides 14–19; Regulamento HackatOhm 2026, art. 20 e 23; guia de entrega e vídeo. A elaboração final e atribuição do apoio de IA devem ser revisadas pela equipe.
+
+## G. Organização do fluxo e responsabilidades
+
+O ganho esperado decorre da reutilização de informações já estruturadas:
+a localização de profissionais consulta os perfis indexados; a busca de
+comprovações recupera documentos vinculados às competências e sua vigência;
+a consulta de disponibilidade usa as informações atualizadas dos sistemas
+corporativos integrados.
+
+As duas etapas seguintes — formar equipes e preparar a proposta — usam
+esses dados organizados, com supervisão do gestor e revisão documental.
+Essa divisão concentra o trabalho humano na análise e na decisão.
+
+### Implantação e responsabilidades
+
+1. Importar uma amostra e revisar a extração, a identidade e as evidências, com RH.
+2. Testar uma demanda com comercial e gestores; confirmar disponibilidade e
+   requisitos antes da recomendação. O colaborador atualiza seus fatos e
+   comprovantes; um revisor designado confere o documento e sua validade.
+3. Expandir a base e conectar RH, projetos e treinamento somente após validar
+   permissões, finalidade, retenção e custo operacional. Acesso por função,
+   auditoria e correção de dados são condições para trabalhar com PII real.
+
+O ranking cultural reconhece contribuições validadas e não altera a nota
+técnica do edital. Dados declarados não devem ser apresentados como
+comprovação; campos ausentes e conflitos permanecem visíveis.
