@@ -77,4 +77,4 @@ O Bid Room é um sistema Python/Streamlit que estrutura dados de currículos .do
 - Pool limitado da composição (14 por papel, busca até 200 mil nós).
 
 ## Video
-https://github.com/user-attachments/assets/4026c4ab-86eb-4db4-b78c-7409e1040bc6
+[https://github.com/user-attachments/assets/4026c4ab-86eb-4db4-b78c-7409e1040bc6](https://github.com/user-attachments/assets/69536b39-e324-4d6c-87d6-5fd1957e78ac)
