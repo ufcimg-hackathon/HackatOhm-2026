@@ -16,7 +16,7 @@ O projeto foi desenvolvido com o suporte do agentic harness OpenCode e seus mode
 | [Modelo oficial](docs/Modelo_resumo_HackatOhm2026-1.docx) | Referência de seções e formatação. |
 | [Guia de entrega e vídeo](docs/Guia_entrega_video_HackatOhm2026.pdf) | Formato e procedimento de envio. |
 | [Case](docs/case-hackathon.pdf) | Problema e entregáveis específicos da EloGroup. |
-
+|---|---|
 | [Resumo em PDF](docs/D04_404EquipeNaoEncontrada_Resumo.pdf) | Resumo sobre a solução do projeto BidRoom |
 | [Relatório de evidências técnicas](docs/relatorio_evidencias_tecnicas.md) | Método, resultados medidos, limitações e cenário de impacto. |
 | [Métricas da carga inicial](docs/metricas-ingestao-baseline.json) | Registro histórico do primeiro ensaio do pipeline BidRoom. |
