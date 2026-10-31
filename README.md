@@ -6,6 +6,8 @@ O Bid Room é um sistema Python/Streamlit que estrutura dados de currículos .do
 
 O projeto foi desenvolvido com o suporte do agentic harness OpenCode e seus modelos de IA gratuitos. Para auxiliar no planejamento, um novo perfil foi criado a partir do agente "Plan" original do OpenCode. O objetivo era estruturar toda a aplicação antes de iniciar o desenvolvimento, estratégia que funcionou muito bem: com a arquitetura definida, bastou solicitar a implementação e realizar ajustes finos no código final.
 
+Confira o resultado [aqui](https://hackatohm-2026-h2xdrxjwx2jqgt8u75fujs.streamlit.app/).
+
 ## Links
 
 | Arquivo | Finalidade |
