@@ -4,6 +4,8 @@ Projeto Bid Room (sala de decisões): Pipeline de extração e ranking de currí
 
 O Bid Room é um sistema Python/Streamlit que estrutura dados de currículos .docx em um banco SQLite governado, aplicando uma taxonomia fechada de competências, experiências, certificações, formações e idiomas. Detecta e cifra PII (e-mail, telefone, endereço, CEP), versiona currículos por candidato, e oferece dashboards para alocação de talentos contra editais de vagas. O motor de scoring usa pesos e gatilhos configuráveis em presets; a composição de equipes respeita limites por papel. O pipeline aceita três fontes de entrada: carga em lote, sincronização da pasta data/inbox/ ou upload direto pela interface. As decisões de design priorizam rastreabilidade e idempotência sobre automação avançada: não há LLM, a extração é determinística.
 
+O projeto foi desenvolvido com o suporte do agentic harness OpenCode e seus modelos de IA gratuitos. Para auxiliar no planejamento, um novo perfil foi criado a partir do agente "Plan" original do OpenCode. O objetivo era estruturar toda a aplicação antes de iniciar o desenvolvimento, estratégia que funcionou muito bem: com a arquitetura definida, bastou solicitar a implementação e realizar ajustes finos no código final.
+
 ## Links
 
 - [Regulamento](docs/regulamento-hackatohm-2026.pdf)
