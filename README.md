@@ -10,19 +10,17 @@ O projeto foi desenvolvido com o suporte do agentic harness OpenCode e seus mode
 
 | Arquivo | Finalidade |
 |---|---|
-| [Resumo editável](docs/D04_404EquipeNaoEncontrada_Resumo.docx) | Proposta no modelo oficial; completar o link do vídeo antes da entrega. |
-| [Resumo em PDF](docs/D04_404EquipeNaoEncontrada_Resumo.pdf) | Versão para envio, com no máximo duas páginas. |
-| [Roteiro do pitch](roteiro-pitch.md) | Apresentação de até cinco minutos com demonstração e impacto. |
+| [Site oficial](https://abre.ai/hackatohm) | Site HackatOhm CEFET-MG |
+| [Regulamento](docs/regulamento-hackatohm-2026.pdf) | Regras, critérios e prazo do evento. |
+| [Cronograma](https://www.eng-eletrica.bh.cefetmg.br/hackatohm/acompanhe/) | Datas do evento |
+| [Modelo oficial](docs/Modelo_resumo_HackatOhm2026-1.docx) | Referência de seções e formatação. |
+| [Guia de entrega e vídeo](docs/Guia_entrega_video_HackatOhm2026.pdf) | Formato e procedimento de envio. |
+| [Case](docs/case-hackathon.pdf) | Problema e entregáveis específicos da EloGroup. |
+
+| [Resumo em PDF](docs/D04_404EquipeNaoEncontrada_Resumo.pdf) | Resumo sobre a solução do projeto BidRoom |
 | [Relatório de evidências técnicas](docs/relatorio_evidencias_tecnicas.md) | Método, resultados medidos, limitações e cenário de impacto. |
-| [Testes e reprodução](docs/README_TESTES_BIDROOM.md) | Instalação e comandos para os experimentos e o protótipo. |
 | [Métricas da carga inicial](docs/metricas-ingestao-baseline.json) | Registro histórico do primeiro ensaio do pipeline BidRoom. |
 | [Métricas do protótipo](../src/bidroom/docs/metricas_etapa8.md) | Jornada integrada, desempenho e limites do BidRoom. |
-| [Case](docs/case-hackathon.pdf) | Problema e entregáveis específicos da EloGroup. |
-| [Regulamento](docs/regulamento-hackatohm-2026.pdf) | Regras, critérios e prazo do evento. |
-| [Guia de entrega e vídeo](docs/Guia_entrega_video_HackatOhm2026.pdf) | Formato e procedimento de envio. |
-| [Modelo oficial](docs/Modelo_resumo_HackatOhm2026-1.docx) | Referência de seções e formatação. |
-| [Cronograma](https://www.eng-eletrica.bh.cefetmg.br/hackatohm/acompanhe/) | Datas do evento |
-| [Site oficial](https://abre.ai/hackatohm) | Site HackatOhm CEFET-MG |
 
 ## Equipe
 
