@@ -2,7 +2,10 @@
 
 ## A. Método e escopo
 
-**Data:** 27/10/2026. **Entrada:** base `curriculos_raw.zip` fornecida pela EloGroup e encaminhada pela equipe, 228 currículos DOCX. **Independência:** a análise executada aqui não usa o protótipo anterior. **Processo:** ler ZIP → interpretar XML/DOCX (inclusive tabelas e cabeçalhos) → reconhecer padrões e normalizar aliases de tecnologias → gravar SQLite → executar consultas e ensaio de busca. Três execuções completas para temporização. O código e os JSONs acompanham este relatório. Na versão organizada para o repositório, os DOCX estão em `data/curriculos_raw/` e os scripts em `src/experimentos/`.
+- **Data:** 27/10/2026.
+- **Entrada:** base `curriculos_raw.zip` fornecida pela EloGroup e encaminhada pela equipe, 228 currículos DOCX.
+- **Independência:** a análise executada aqui não usa o protótipo anterior.
+- **Processo:** ler ZIP → interpretar XML/DOCX (inclusive tabelas e cabeçalhos) → reconhecer padrões e normalizar aliases de tecnologias → gravar SQLite → executar consultas e ensaio de busca. Três execuções completas para temporização. O código e os JSONs acompanham este relatório. Na versão organizada para o repositório, os DOCX estão em `data/curriculos_raw/` e os scripts em `src/experimentos/`.
 
 ## B. Resultados realmente observados
 
