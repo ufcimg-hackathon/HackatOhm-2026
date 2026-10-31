@@ -94,16 +94,6 @@ e na revisão da proposta.
 9. **Pontuação por edital e função:** não somar automaticamente pontos pertencentes a papéis diferentes; separar restrições obrigatórias, limites, disponibilidade, não acúmulo e evidências. Uma heurística de pessoas isoladas pode falhar ao compor a equipe.
 10. **Dados de mercado e impacto:** horas e volume são premissas do case; ganho de vitória, faturamento e taxa de sucesso não foram observados. Manter resultados efetivos separados de projeções.
 
-## F. O que demonstrar no pitch e o que permanece a validar
-
-**Obtido, reproduzível agora:** 228 DOCX processados, tempo medido, 3.713 menções normalizadas, banco com relações, busca indexada conferida, duplicatas textuais sinalizadas, lógica fictícia de equipe reproduzível.
-
-**Ainda não demonstrado:** F1 de extração com gabarito humano, detecção confiável de cargos e experiências por pessoa, correspondência a editais reais, autenticidade das comprovações, atualização contínua, LGPD implementada, impacto operacional entre gestores e qualquer melhoria na taxa de sucesso em concorrências.
-
-**Teste de precisão necessário antes de usar em decisão real:** amostra de 20–30 currículos com anotações humanas independentes; calcular precisão/recall/F1 por campo e registrar falsos positivos e omissões. Os resultados disponíveis medem leitura e consistência; a precisão semântica depende de um gabarito revisado.
-
-**Referências do desafio:** Case B EloGroup, slides 14–19; Regulamento HackatOhm 2026, art. 20 e 23; guia de entrega e vídeo. A elaboração final e atribuição do apoio de IA devem ser revisadas pela equipe.
-
 ## G. Organização do fluxo e responsabilidades
 
 O ganho esperado decorre da reutilização de informações já estruturadas:
