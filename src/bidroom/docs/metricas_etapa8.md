@@ -159,17 +159,3 @@ python -m pytest tests/test_etapa8.py -q
 python scripts/benchmark_etapa8.py --repeticoes 1 --volumes 50,100,200
 python scripts/metricas_etapa8.py
 ```
-
-## Falhas e lacunas restantes
-
-- Sem piloto com usuários representativos; os dados são sintéticos.
-- Sem autenticação/RBAC; não apto a PII real.
-- SQLite é single-node; concorrência testada no nível de invariantes, não sob
-  carga.
-- Extração de edital é rule-based; requisitos ambíguos continuam indo para
-  revisão humana.
-- A composição usa pool limitado por papel (14) e limite de busca (200 mil nós);
-  o resultado é o melhor encontrado, não uma prova de ótimo global em todos os
-  casos.
-- O benchmark cobre o carregamento de contexto; não é um benchmark completo de
-  todas as telas Streamlit.
