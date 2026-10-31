@@ -1,31 +1,8 @@
 # HackatOhm 2026 — Elogroup
 
+Projeto Bid Room (sala de decisões): Pipeline de extração e ranking de currículos com Python/Streamlit.
 
-
-## Prazo
-
-Entrega **até às 23h de 27/10/2026**. A falta de material obrigatório ou o envio fora do prazo **desclassifica a equipe** (art. 21). 
-
-> Para garantir as horas de extensão, cada aluno deverá, antes do término do evento, [manifestar interesse na ação de extensão!](https://www.dedc.cefetmg.br/wp-content/uploads/sites/79/guias/2/Guia-SIGAA-2.1.-Demonstrar-interesse-em-participar-de-a%C3%A7%C3%A3o-de-extens%C3%A3o.pdf). Caso contrário, não será possível garantir as horas de participação do evento. 
-
-## Entregas obrigatórias
-
-1. **Resumo em PDF** (máx. 2 páginas), no [modelo oficial](docs/Modelo_resumo_HackatOhm2026-1.docx), nomeado `D00_NomeDaEquipe_Resumo.pdf`.
-2. **Vídeo pitch** de até 5 minutos, com o link informado no resumo.
-
-Materiais complementares são opcionais, com links informados no resumo.
-
-## Como entregar
-
-1. O código está em [`src/`](src): [`experimentos/`](src/experimentos) reúne a análise reproduzível e [`bidroom/`](src/bidroom) contém o protótipo. Os currículos estão em [`data/curriculos_raw/`](data/curriculos_raw).
-   > Considerando a [Política de Inovação do UFCIMG](https://www2.conselhodiretor.cefetmg.br/conselho-diretor/resolucoes-anos-2020/2022-2/cd-res-2022-018/), qualquer código desenvolvido em atividades acadêmicas ou utilizando recursos da instituição é de titularidade total ou parcial da UFCIMG. Assim, sua reprodução, comercialização, distribuição e uso por terceiros dependem de autorização institucional. Os criadores do software são os autores listados no arquivo, tendo sua autoria reconhecida e preservada.
-
-2. Caso tenha criado e/ou manipulado algum dado, armazene os arquivos em [`data/`](data).
-3. Envie **um único e-mail por equipe** com o PDF do resumo aos professores mentores do desafio, com cópia para hackatohm@gmail.com.
-   - Assunto: `HackatOhm 2026 – D04 – Nome da equipe`
-   **O envio do email é obrigatório para a validação da entrega.** A falta do envio do e-mail desclassifica a equipe (art. 21).
-4. Armazene esse arquivo enviado em [`docs/`](docs) com o nome `D04_NomeDaEquipe_Resumo.pdf`.
-
+O Bid Room é um sistema Python/Streamlit que estrutura dados de currículos .docx em um banco SQLite governado, aplicando uma taxonomia fechada de competências, experiências, certificações, formações e idiomas. Detecta e cifra PII (e-mail, telefone, endereço, CEP), versiona currículos por candidato, e oferece dashboards para alocação de talentos contra editais de vagas. O motor de scoring usa pesos e gatilhos configuráveis em presets; a composição de equipes respeita limites por papel. O pipeline aceita três fontes de entrada: carga em lote, sincronização da pasta data/inbox/ ou upload direto pela interface. As decisões de design priorizam rastreabilidade e idempotência sobre automação avançada: não há LLM, a extração é determinística.
 
 ## Links
 
@@ -39,34 +16,65 @@ Materiais complementares são opcionais, com links informados no resumo.
 
 | Nome | Curso |
 | ---- | ----- |
-| Carlos Reis (líder) | Engenharia de Computação — 6º período |
+| Carlos Reis | Engenharia de Computação — 6º período |
 | Luca Magni | Engenharia de Computação — 6º período |
 | Pedro Oliveira | Engenharia de Computação — 6º período |
 
+## Tech
+- Python
+- Streamlit
+- SQLite
+- Regras de extração
+- Taxonomia de habilidades
 
-## Executar e conferir
+## Funcionalidades
 
-Na raiz, com Python 3.10 ou superior:
+1. Extração de dados de currículos
+- Parsing do arquivo .docx usando python-docx (texto + tabelas).
+- Estimação de páginas baseada no volume de texto (~3.000 chars/página).
+- Extração por regras (taxonomia fechada, sem LLM)
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m unittest discover -s src/experimentos/tests -p 'test_*.py' -v
-cd src/bidroom
-python -m pytest -q
-```
+2. Tratamento de PII (dados pessoais)
+- Detecção de e-mail, telefone, endereço e CEP no texto.
+- Cifragem dos dados detectados com Fernet (chave em .env / BIDROOM_PII_KEY).
+- Redação (***) dos dados no texto bruto, trechos de evidência e campos estruturados.
+- Armazenamento criptografado em tabela cofre_dados_pessoais.
 
-No PowerShell, ative o mesmo ambiente com `.venv\Scripts\Activate.ps1`.
-A suíte do BidRoom deve ser executada dentro de `src/bidroom/`, pois seus
-imports e caminhos locais são relativos ao aplicativo.
+3. Persistência no SQLite
 
-- [Comandos de ingestão e busca](docs/README_TESTES_BIDROOM.md).
-- [Instalação e uso do protótipo](src/bidroom/README.md).
-- [Relatório de evidências](docs/relatorio_evidencias_tecnicas.md).
-- [Resumo editável](docs/D04_404EquipeNaoEncontrada_Resumo.docx).
-- [Roteiro do pitch](docs/roteiro-pitch.md).
+4. Pipeline de ingestão
+- Carga em lote.
+- Sincronização da pasta data/inbox/.
+- Upload pela UI.
 
-O experimento mede leitura e busca de menções. O protótipo possui seu próprio
-schema de perfis, evidências e editais. A organização conjunta não converte
-resultados do experimento em fatos validados no protótipo.
+5. Pontuação e ranking
+- Motor de scoring.
+- Gatilhos G1–G6 (configuram requisitos mínimos)
+- Composição de equipes: algoritmo guloso + otimizador.
+- Ranking cultural: contagem de conquistas por programa/ano e desempate por certificado alvo. 
+
+6. Gestão de editais e vagas
+- Criação de editais.
+- Requisitos individuais ou coletivos; ambiguidade; status (pendente, aprovado, rejeitado).
+- Anexos de edital.
+- Criação de disputas (processos de alocação) com status aberta/fechada.
+- Alocações: um candidato por disputa/papel, reservas de vagas e índice único que impede duas alocações ativas do mesmo candidato na mesma disputa.
+
+8. Interface Streamlit (app.py)
+- Perfil do candidato: visualização de fatos, versões, evidências, upload de novo arquivo.
+- Dashboard (T1): métricas gerais — total de currículos, curados/alocados, com erro.
+- Alocação (T2): lista de disputas, recomendações automáticas, pontuações, cobertura, alternativas por vaga, riscos.
+- Edital (T3): criação de editais, envio de anexo .docx, revisão de requisitos, ativação.
+- Governança (T4–T6): sincronização da pasta data/inbox/, fila de revisão, verificação de vencimentos, reconhecimento.
+- Cache global na memória (recarregado ao mudar de tela ou após operações).
+
+## Próximos passos
+- Sem LLM: toda extração é rule-based, ou seja, termos fora da taxonomia vão para base de dados *residual* e não pontuam.
+- Aceita currículos apenas no formato .docx: não há suporte a PDF, .doc antigo, OCR ou imagens.
+- Nomes não são detectados: o sistema usa pseudônimos sequenciais (Candidato 001, Candidato 002).
+- PII cobre apenas e-mail, telefone, endereço, CEP: nomes não são redigidos.
+- Sistema sem autenticação/RBAC: qualquer um que tenha a URL pode visualizar.
+- Pool limitado da composição (14 por papel, busca até 200 mil nós).
+
+## Video
+https://github.com/user-attachments/assets/4026c4ab-86eb-4db4-b78c-7409e1040bc6
