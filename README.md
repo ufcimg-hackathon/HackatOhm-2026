@@ -38,38 +38,38 @@ O projeto foi desenvolvido com o suporte do agentic harness OpenCode e seus mode
 
 ## Funcionalidades
 
-1. Extração de dados de currículos
+**1. Extração de dados de currículos**
 - Parsing do arquivo .docx usando python-docx (texto + tabelas).
 - Estimação de páginas baseada no volume de texto (~3.000 chars/página).
 - Extração por regras (taxonomia fechada, sem LLM)
 
-2. Tratamento de PII (dados pessoais)
+**2. Tratamento de PII (dados pessoais)**
 - Detecção de e-mail, telefone, endereço e CEP no texto.
 - Cifragem dos dados detectados com Fernet (chave em .env / BIDROOM_PII_KEY).
 - Redação (***) dos dados no texto bruto, trechos de evidência e campos estruturados.
 - Armazenamento criptografado em tabela cofre_dados_pessoais.
 
-3. Persistência no SQLite
+**3. Persistência no SQLite**
 
-4. Pipeline de ingestão
+**4. Pipeline de ingestão**
 - Carga em lote.
 - Sincronização da pasta data/inbox/.
 - Upload pela UI.
 
-5. Pontuação e ranking
+**5. Pontuação e ranking**
 - Motor de scoring.
 - Gatilhos G1–G6 (configuram requisitos mínimos)
 - Composição de equipes: algoritmo guloso + otimizador.
 - Ranking cultural: contagem de conquistas por programa/ano e desempate por certificado alvo. 
 
-6. Gestão de editais e vagas
+**6. Gestão de editais e vagas**
 - Criação de editais.
 - Requisitos individuais ou coletivos; ambiguidade; status (pendente, aprovado, rejeitado).
 - Anexos de edital.
 - Criação de disputas (processos de alocação) com status aberta/fechada.
 - Alocações: um candidato por disputa/papel, reservas de vagas e índice único que impede duas alocações ativas do mesmo candidato na mesma disputa.
 
-8. Interface Streamlit (app.py)
+**8. Interface Streamlit (app.py)**
 - Perfil do candidato: visualização de fatos, versões, evidências, upload de novo arquivo.
 - Dashboard (T1): métricas gerais — total de currículos, curados/alocados, com erro.
 - Alocação (T2): lista de disputas, recomendações automáticas, pontuações, cobertura, alternativas por vaga, riscos.
